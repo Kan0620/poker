@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <title>Poker Trainer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        :root {
+            --bg: #05070b;
+            --card-bg: #131722;
+            --accent: #2f81ff;
+            --accent-soft: rgba(47, 129, 255, 0.15);
+            --text-main: #f5f5f5;
+            --text-sub: #a0a4b8;
+            --danger: #ff4b6a;
+            --success: #30c48d;
+            --border: #252a3a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system_ui, sans-serif;
+            background: radial-gradient(circle at top, #111525 0, #05070b 55%);
+            color: var(--text-main);
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto 40px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            margin: 0 0 4px;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: rgba(10, 14, 25, 0.92);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 14px 14px 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        label {
+            font-size: 0.95rem;
+        }
+
+        select,
+        input[type="number"],
+        button {
+            font-size: 1rem;
+        }
+
+        select,
+        input[type="number"] {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #080c16;
+            color: var(--text-main);
+            margin-top: 4px;
+        }
+
+        select:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(47, 129, 255, 0.5);
+        }
+
+        .top-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .top-row > div {
+            flex: 1;
+        }
+
+        .question-hand {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #182033, #1e293b);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--accent);
+        }
+
+        .pos-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .pos-pill {
+            padding: 6px 11px;
+            border-radius: 999px;
+            background: #111827;
+            border: 1px solid var(--border);
+            font-size: 0.98rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .pos-pill.hero {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .pos-pill.villain {
+            border-color: rgba(148, 163, 184, 0.6);
+            color: var(--text-main);
+        }
+
+        .pos-pill.ip {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .pos-pill.oop {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .pos-pill .label {
+            font-size: 0.8rem;
+            color: var(--text-sub);
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 12px 0 6px;
+            color: var(--text-sub);
+        }
+
+        .answer-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            margin: 8px 0 4px;
+        }
+
+        .option-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #050814;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .option-label input {
+            transform: scale(1.2);
+        }
+
+        .submit-row {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        button[type="submit"] {
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(1px);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .result-status {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .result-status.ok {
+            color: var(--success);
+        }
+
+        .result-status.ng {
+            color: var(--danger);
+        }
+
+        .result-body {
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .mono {
+            font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: 0.95rem;
+        }
+
+        .definitions {
+            margin-top: 18px;
+        }
+
+        .definitions h2 {
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            padding: 4px 6px;
+            text-align: center;
+        }
+
+        th {
+            background: #111827;
+        }
+
+        .def-block {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #050814;
+            font-size: 0.88rem;
+        }
+
+        .def-block ul {
+            margin: 4px 0 0 18px;
+            padding: 0;
+        }
+
+        .def-block li {
+            margin: 2px 0;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            color: var(--text-sub);
+        }
+
+        details.toggle-block {
+            margin-top: 4px;
+        }
+
+        details.toggle-block > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #050814;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        details.toggle-block > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .summary-icon {
+            font-size: 0.9rem;
+        }
+
+        details.toggle-block[open] > summary {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        /* MDF Trainer用スタイル */
+        .mdf-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .mdf-info > div {
+            margin-bottom: 8px;
+        }
+
+        .bucket-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 8px 0 4px;
+        }
+
+        .bucket-option-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #050814;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .bucket-option-label:hover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .bucket-option-label input {
+            transform: scale(1.2);
+        }
+
+        .mdf-analysis {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 12px;
+            background: #111827;
+            border: 1px solid var(--border);
+        }
+
+        .mdf-analysis h3 {
+            font-size: 1rem;
+            margin: 0 0 10px 0;
+        }
+
+        .mdf-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 0.88rem;
+        }
+
+        .mdf-summary-item {
+            padding: 8px;
+            background: #050814;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .mdf-summary-item strong {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 4px;
+        }
+
+        .mdf-summary-item span {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .bucket-table {
+            font-size: 0.82rem;
+        }
+
+        .bucket-table th {
+            font-size: 0.78rem;
+            padding: 6px 4px;
+        }
+
+        .bucket-table td {
+            padding: 5px 4px;
+        }
+
+        .cutoff-row {
+            background: rgba(47, 129, 255, 0.1);
+            font-weight: 600;
+        }
+
+        .learning-point {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(48, 196, 141, 0.1);
+            border: 1px solid rgba(48, 196, 141, 0.3);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+                font-size: 15px;
+            }
+            h1 {
+                font-size: 1.4rem;
+            }
+            .card {
+                padding: 12px;
+            }
+            .question-hand {
+                font-size: 1.4rem;
+            }
+            .top-row {
+                flex-direction: column;
+            }
+            .mdf-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    {% set pos_map = {
+        "UTG": "UTG",
+        "UTG+1": "UTG+1",
+        "UTG+2": "UTG+2",
+        "HJ": "HJ",
+        "LJ": "LJ",
+        "CO": "CO",
+        "BTN": "BTN",
+        "SB": "SB",
+        "BB": "BB"
+    } %}
+
+    <!-- タイトル -->
+    <div class="card" style="margin-bottom: 10px;">
+        <div class="card-header">
+            <div>
+                <h1>Poker Trainer</h1>
+                <div class="subtitle">プリフロ＆ショートスタック周りを自作ルールで反復練習</div>
+            </div>
+        </div>
+        <!-- モード選択 -->
+        <form method="get" action="/">
+            <label for="mode-select">学習モード</label>
+            <select id="mode-select" name="mode" onchange="this.form.submit()">
+                {% for m in study_modes %}
+                    <option value="{{ m.value }}"
+                        {% if ui_mode == m.value %}selected{% endif %}>
+                        {% if m.value == 'open_range' %}オープンレンジ
+                        {% elif m.value == 'sb_open' %}SB open
+                        {% elif m.value == 'three_bet' %}3bet
+                        {% elif m.value == 'three_bet_defence' %}3betディフェンス
+                        {% elif m.value == 'power_number' %}パワーナンバー
+                        {% elif m.value == 'bb_defence' %}BB defence
+                        {% elif m.value == 'mdf_trainer' %}MDF Trainer
+                        {% elif m.value == 'mix' %}MIX（7モードランダム）
+                        {% else %}{{ m.value }}{% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <!-- 質問カード（上） -->
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                {% if question.mode == 'open_range' %}
+                    オープンレンジ：このハンドはオープン？フォールド？
+                {% elif question.mode == 'sb_open' %}
+                    SB open：このハンドはRAISE / LIMP / FOLD？
+                {% elif question.mode == 'three_bet' %}
+                    3bet：このスポットで3bet / call / fold のどれを許容する？
+                {% elif question.mode == 'three_bet_defence' %}
+                    3betディフェンス：ディフェンス or フォールド？
+                {% elif question.mode == 'power_number' %}
+                    パワーナンバー：Mに対してオールイン or フォールド？
+                {% elif question.mode == 'bb_defence' %}
+                    BB defence：BBでディフェンド or フォールド？
+                {% elif question.mode == 'mdf_trainer' %}
+                    MDF Trainer：MDFを満たすには、どのバケットまでdefendが必要？
+                {% endif %}
+            </div>
+            <span class="badge">
+                {{ question.mode }}
+            </span>
+        </div>
+
+        {% if question.mode != 'mdf_trainer' %}
+        <!-- ハンド（MDF以外） -->
+        <div class="question-hand">
+            <span class="dot"></span>
+            <span class="mono">{{ question.hand_label }}</span>
+        </div>
+        {% else %}
+        <!-- MDF Trainer用の情報表示（タイマー付き） -->
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
+            <div class="mdf-info" style="flex:1;">
+                <div>
+                    <strong>レンジ:</strong> <span class="mono">{% if question.range_name == '3BET_DEFENCE_IP' %}3bet defence (IP)
+                        {% elif question.range_name == '3BET_DEFENCE_OOP' %}3bet defence (OOP)
+                        {% else %}{{ question.range_name }}{% endif %}</span>
+                </div>
+                <div>
+                    <strong>Board:</strong>
+                    <span class="question-hand" style="display:inline-flex;padding:6px 10px;font-size:1.2rem;">
+                        {% for card in question.board %}
+                            <span class="mono">{{ card }}</span>{% if not loop.last %}<span style="margin:0 4px;">・</span>{% endif %}
+                        {% endfor %}
+                    </span>
+                </div>
+                <div>
+                    <strong>Bet size:</strong>
+                    <span class="mono">{{ (question.bet_size * 100)|int }}% pot</span>
+                </div>
+            </div>
+
+            <!-- 10秒タイマー -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+                <button type="button" id="timer-btn" onclick="startTimer()"
+                    style="width:80px;height:80px;border-radius:50%;border:3px solid var(--primary);background:var(--bg);color:var(--text);font-size:1.5rem;font-weight:bold;cursor:pointer;transition:all 0.2s;">
+                    <span id="timer-display">10</span>
+                </button>
+                <div style="font-size:0.75rem;color:var(--text-sub);">タイマー</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ポジション表示 -->
+        {% if question.mode != 'mdf_trainer' %}
+        <div class="pos-row">
+            <div class="pos-pill hero">
+                <span class="label">Hero</span>
+                <span>{{ pos_map.get(question.hero_pos, question.hero_pos) }}</span>
+            </div>
+            {% if question.villain_pos %}
+                <div class="pos-pill villain">
+                    <span class="label">Vs Open</span>
+                    <span>{{ pos_map.get(question.villain_pos, question.villain_pos) }}</span>
+                </div>
+            {% endif %}
+            {% if question.in_position is not none %}
+                <div class="pos-pill {{ 'ip' if question.in_position else 'oop' }}">
+                    <span class="label">Postflop</span>
+                    <span>{{ 'IP' if question.in_position else 'OOP' }}</span>
+                </div>
+            {% endif %}
+            {% if question.m_value is not none %}
+                <div class="pos-pill">
+                    <span class="label">M値</span>
+                    <span>{{ question.m_value }}</span>
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <form method="post" action="/answer">
+            <!-- 共通 hidden -->
+            <input type="hidden" name="mode" value="{{ question.mode }}">
+            <input type="hidden" name="requested_mode" value="{{ ui_mode }}">
+            <input type="hidden" name="hero_pos" value="{{ question.hero_pos }}">
+            <input type="hidden" name="villain_pos" value="{{ question.villain_pos }}">
+            <input type="hidden" name="hand_hi" value="{{ question.hand_hi }}">
+            <input type="hidden" name="hand_lo" value="{{ question.hand_lo }}">
+            <input type="hidden" name="suited" value="{{ 'true' if question.suited else 'false' }}">
+            {% if question.m_value is not none %}
+                <input type="hidden" name="m_value" value="{{ question.m_value }}">
+            {% endif %}
+            {% if question.in_position is not none %}
+                <input type="hidden" name="in_position" value="{{ 'true' if question.in_position else 'false' }}">
+            {% endif %}
+            <input type="hidden" name="correct_action" value="{{ question.correct_action }}">
+
+            <!-- MDF用hidden -->
+            {% if question.mode == 'mdf_trainer' %}
+                <input type="hidden" name="range_name" value="{{ question.range_name }}">
+                <input type="hidden" name="board" value="{{ question.board_raw }}">
+                <input type="hidden" name="bet_size" value="{{ question.bet_size }}">
+            {% endif %}
+
+            <div class="section-title">アクションを選択</div>
+
+            {% if question.mode == 'mdf_trainer' %}
+                <!-- MDF: バケット選択 -->
+                <div class="bucket-options">
+                    <label class="bucket-option-label">
+                        <input type="radio" name="user_action" value="Monster" required>
+                        <strong>Monster</strong> <span style="color:var(--text-sub);font-size:0.85rem;">(Set以上)</span>
+                    </label>
+                    <label class="bucket-option-label">
+                        <input type="radio" name="user_action" value="Strong Made">
+                        <strong>Strong Made</strong> <span style="color:var(--text-sub);font-size:0.85rem;">(Top Pair 強キッカー)</span>
+                    </label>
+                    <label class="bucket-option-label">
+                        <input type="radio" name="user_action" value="Weak Made">
+                        <strong>Weak Made</strong> <span style="color:var(--text-sub);font-size:0.85rem;">(Weak TP / 2nd-3rd pair / Over pair)</span>
+                    </label>
+                    <label class="bucket-option-label">
+                        <input type="radio" name="user_action" value="Draw">
+                        <strong>Draw</strong> <span style="color:var(--text-sub);font-size:0.85rem;">(FD / OESD / GS)</span>
+                    </label>
+                    <label class="bucket-option-label">
+                        <input type="radio" name="user_action" value="SD Value">
+                        <strong>SD Value</strong> <span style="color:var(--text-sub);font-size:0.85rem;">(A-high / K-high)</span>
+                    </label>
+                    <label class="bucket-option-label">
+                        <input type="radio" name="user_action" value="Air">
+                        <strong>Air</strong> <span style="color:var(--text-sub);font-size:0.85rem;">(それ以外)</span>
+                    </label>
+                </div>
+
+            {% elif question.mode == 'sb_open' %}
+                <!-- SB open専用モード：3択 -->
+                <div class="answer-options">
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="raise" required>
+                        Raise
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="limp">
+                        Limp
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="fold">
+                        Fold
+                    </label>
+                </div>
+
+            {% elif question.mode == 'open_range' %}
+                <!-- オープンレンジモード：2択（Open/Fold） -->
+                <div class="answer-options">
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="open" required>
+                        Open
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="fold">
+                        Fold
+                    </label>
+                </div>
+
+            {% elif question.mode == 'three_bet' %}
+                <div class="answer-options">
+                    <label class="option-label">
+                        <input type="checkbox" name="user_actions" value="3bet">
+                        3bet
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" name="user_actions" value="call">
+                        Call
+                    </label>
+                    <label class="option-label">
+                        <input type="checkbox" name="user_actions" value="fold">
+                        Fold
+                    </label>
+                </div>
+                <div style="font-size:0.8rem;color:var(--text-sub);margin-top:2px;">
+                    ※ 自分のルール上 <span class="mono">3bet / call / fold</span> のうち
+                    <strong>「許容されるアクション全部」</strong> をチェックする
+                    （例：3bet or call なら 2つともチェック）
+                </div>
+
+            {% elif question.mode == 'three_bet_defence' %}
+                <div class="answer-options">
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="defend" required>
+                        Defend
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="fold">
+                        Fold
+                    </label>
+                </div>
+
+            {% elif question.mode == 'power_number' %}
+                <div class="answer-options">
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="shove" required>
+                        All-in (Shove)
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="fold">
+                        Fold
+                    </label>
+                </div>
+
+            {% elif question.mode == 'bb_defence' %}
+                <div class="answer-options">
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="defend" required>
+                        Defend
+                    </label>
+                    <label class="option-label">
+                        <input type="radio" name="user_action" value="fold">
+                        Fold
+                    </label>
+                </div>
+            {% endif %}
+
+            <div class="submit-row">
+                <button type="submit">回答する ▶︎</button>
+            </div>
+
+            <!-- 問題復元用URL -->
+            <div style="margin-top:12px;padding:8px;background:var(--bg-sub);border-radius:6px;font-size:0.8rem;">
+                <div style="color:var(--text-sub);margin-bottom:4px;">📋 この問題のURL（接続が切れた場合用）</div>
+                <input type="text" id="question-url" readonly
+                    value="{% if question.mode == 'mdf_trainer' %}{{ request.url.scheme }}://{{ request.url.netloc }}/?mode={{ ui_mode }}&q_mode={{ question.mode }}&range_name={{ question.range_name }}&board={{ question.board_raw }}&bet_size={{ question.bet_size }}&correct_action={{ question.correct_action }}{% else %}{{ request.url.scheme }}://{{ request.url.netloc }}/?mode={{ ui_mode }}&q_mode={{ question.mode }}&hero_pos={{ question.hero_pos }}&villain_pos={{ question.villain_pos }}&hand_hi={{ question.hand_hi }}&hand_lo={{ question.hand_lo }}&suited={{ 'true' if question.suited else 'false' }}{% if question.m_value is not none %}&m_value={{ question.m_value }}{% endif %}{% if question.in_position is not none %}&in_position={{ 'true' if question.in_position else 'false' }}{% endif %}&correct_action={{ question.correct_action }}{% endif %}"
+                    style="width:100%;padding:6px;font-size:0.75rem;font-family:monospace;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--text);"
+                    onclick="this.select();document.execCommand('copy');alert('URLをコピーしました！');">
+            </div>
+        </form>
+    </div>
+
+    <!-- 回答結果カード（下） -->
+    {% if last_result %}
+        <div class="card">
+            <div class="result-header">
+                <div class="result-status {% if last_result.is_correct %}ok{% else %}ng{% endif %}">
+                    {% if last_result.is_correct %}
+                        ✅ 正解！
+                    {% else %}
+                        ❌ 不正解
+                    {% endif %}
+                </div>
+                <span class="pill">
+                    <span class="dot" style="background: {{ 'var(--success)' if last_result.is_correct else 'var(--danger)' }};"></span>
+                    前のハンド結果
+                </span>
+            </div>
+            <div class="result-body">
+                {% if last_result.mode == 'mdf_trainer' %}
+                    <!-- MDF結果表示 -->
+                    <div><strong>レンジ:</strong> <span class="mono">{% if last_result.range_name == '3BET_DEFENCE_IP' %}3bet defence (IP)
+                        {% elif last_result.range_name == '3BET_DEFENCE_OOP' %}3bet defence (OOP)
+                        {% else %}{{ last_result.range_name }}{% endif %}</span></div>
+                    <div><strong>Board:</strong> <span class="mono">{{ last_result.board }}</span></div>
+                    <div><strong>Bet size:</strong> {{ (last_result.bet_size * 100)|int }}% pot</div>
+                    <div style="margin-top:4px;">
+                        <strong>あなたの回答:</strong> <span class="mono">{{ last_result.user_action }}</span><br />
+                        <strong>正解:</strong> <span class="mono">{{ last_result.expected }}</span>
+                    </div>
+
+                    <!-- MDF分析結果 -->
+                    {% if last_result.analysis %}
+                    <div class="mdf-analysis">
+                        <h3>📊 MDF分析結果</h3>
+
+                        <div class="mdf-summary">
+                            <div class="mdf-summary-item">
+                                <strong>MDF</strong>
+                                <span>{{ (last_result.analysis.mdf * 100)|round(1) }}%</span>
+                            </div>
+                            <div class="mdf-summary-item">
+                                <strong>Total Combos</strong>
+                                <span>{{ last_result.analysis.total_combos }}</span>
+                            </div>
+                            <div class="mdf-summary-item">
+                                <strong>Need Defend</strong>
+                                <span>{{ last_result.analysis.need_defend_combos }}</span>
+                            </div>
+                            <div class="mdf-summary-item">
+                                <strong>Cutoff</strong>
+                                <span style="font-size:0.95rem;">{{ last_result.analysis.cutoff_bucket }}</span>
+                            </div>
+                        </div>
+
+                        <table class="bucket-table">
+                            <thead>
+                                <tr>
+                                    <th>Bucket</th>
+                                    <th>Count</th>
+                                    <th>Pct</th>
+                                    <th>Cum</th>
+                                    <th>Cum%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for bucket in last_result.analysis.buckets %}
+                                <tr {% if bucket.name == last_result.analysis.cutoff_bucket %}class="cutoff-row"{% endif %}>
+                                    <td>
+                                        {% if bucket.hands and bucket.count > 0 %}
+                                        <strong style="cursor:pointer;user-select:none;" onclick="toggleHands('bucket-{{ loop.index }}')">
+                                            <span id="bucket-{{ loop.index }}-icon">▶</span> {{ bucket.name }}
+                                        </strong>
+                                        <div id="bucket-{{ loop.index }}-hands" style="display:none;font-size:0.75rem;color:var(--text-sub);margin-top:4px;line-height:1.4;">
+                                            {{ bucket.hands|join(', ') }}
+                                        </div>
+                                        {% else %}
+                                        <strong>{{ bucket.name }}</strong>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ bucket.count }}</td>
+                                    <td>{{ bucket.pct }}%</td>
+                                    <td>{{ bucket.cum_count }}</td>
+                                    <td>{{ bucket.cum_pct }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        {% if last_result.analysis.mix_required %}
+                        <div class="learning-point">
+                            <strong>💡 Mix必要:</strong>
+                            {{ last_result.analysis.cutoff_bucket }} の上位 {{ last_result.analysis.mix_ratio }}% をdefend（ランダムmix）
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                {% else %}
+                    <!-- 既存モードの結果表示 -->
+                    <div><strong>ハンド:</strong> <span class="mono">{{ last_result.hand_label }}</span></div>
+                    <div><strong>Hero:</strong> {{ pos_map.get(last_result.hero_pos, last_result.hero_pos) }}
+                        {% if last_result.villain_pos %}
+                            / <strong>Vs:</strong> {{ pos_map.get(last_result.villain_pos, last_result.villain_pos) }}
+                        {% endif %}
+                        {% if last_result.m_value is not none %}
+                            / <strong>M値:</strong> {{ last_result.m_value }}
+                        {% endif %}
+                        {% if last_result.in_position is not none %}
+                            / <strong>ポジション:</strong> {{ 'IP' if last_result.in_position else 'OOP' }}
+                        {% endif %}
+                    </div>
+                    <div style="margin-top:4px;">
+                        <strong>あなたの回答:</strong> <span class="mono">{{ last_result.user_action }}</span><br />
+                        <strong>自分ルール上の正解:</strong> <span class="mono">{{ last_result.expected }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- レンジ定義ブロック -->
+    <div class="definitions">
+        <details class="toggle-block">
+            <summary>
+                <span class="summary-icon">▶︎</span>
+                簡易オープンレンジ表を表示
+            </summary>
+            <div style="margin-top:8px;">
+                <h2>簡易オープンレンジ</h2>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ポジション</th>
+                        <th>O: 足してX以上</th>
+                        <th>O: 両方x以上, Axo</th>
+                        <th>S: 強い系</th>
+                        <th>S: 両方x以上</th>
+                        <th>S: コネ/ギャッパ</th>
+                        <th>ポケット</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>UTG</td>
+                        <td>26</td>
+                        <td>–</td>
+                        <td>足して24以上</td>
+                        <td>なし</td>
+                        <td>なし</td>
+                        <td>8以上</td>
+                    </tr>
+                    <tr>
+                        <td>UTG+1/2</td>
+                        <td>25</td>
+                        <td>–</td>
+                        <td>BWs, A9s以上, A4s, A5s</td>
+                        <td>なし</td>
+                        <td>なし</td>
+                        <td>5以上</td>
+                    </tr>
+                    <tr>
+                        <td>HJ/LJ</td>
+                        <td>23</td>
+                        <td>–</td>
+                        <td>AXs, KXs</td>
+                        <td>8</td>
+                        <td>なし</td>
+                        <td>全部</td>
+                    </tr>
+                    <tr>
+                        <td>CO</td>
+                        <td>–</td>
+                        <td>9以上, Ax(x≧8)</td>
+                        <td>A〜QXs</td>
+                        <td>7</td>
+                        <td>45s以上</td>
+                        <td>全部</td>
+                    </tr>
+                    <tr>
+                        <td>BTN</td>
+                        <td>–</td>
+                        <td>8, Ax</td>
+                        <td>A〜TXs</td>
+                        <td>5</td>
+                        <td>45s, 46s以上</td>
+                        <td>全部</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+
+        {% if last_result and not last_result.is_correct %}
+            {% if last_result.mode == 'three_bet' %}
+                <div class="def-block">
+                    <strong>簡易3betレンジ（自分ルール）</strong>
+                    <ul>
+                        <li>ブラインド以外では <span class="mono">QQ+, AKo, AKs</span> は必ず3bet</li>
+                        <li>オープンが UTG / UTG+1/2 のとき：
+                            <ul>
+                                <li>必ず3bet: <span class="mono">AKo, QQ+, AQs+</span></li>
+                                <li>必ずcold call: <span class="mono">AJs, 88, 99</span></li>
+                                <li>call or 3bet: <span class="mono">TT, JJ, KQs</span></li>
+                                <li>3bet or fold: <span class="mono">A5s</span></li>
+                            </ul>
+                        </li>
+                        <li>オープンがそれ以外のポジションのとき：
+                            <ul>
+                                <li>「一つ上の行」のオープンレンジに入っていれば <span class="mono">3bet or call</span></li>
+                                <li>SBでは OOP なのでPFで終わらせる意識（3bet頻度やサイズをやや強めに）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            {% elif last_result.mode == 'three_bet_defence' %}
+                <div class="def-block">
+                    <strong>簡易3betディフェンスレンジ</strong>
+                    <ul>
+                        <li>基本：自分の <span class="mono">UTG+1/2</span> オープンレンジに入るハンドだけディフェンス候補</li>
+                        <li>IPからの3betに対して（自分OOP）：
+                            <ul>
+                                <li>ポケット：<span class="mono">77+</span></li>
+                                <li>スーテッドAX：<span class="mono">AJs+, A5s</span></li>
+                                <li>オフスート：<span class="mono">AQo+, AKo</span></li>
+                            </ul>
+                        </li>
+                        <li>OOPからの3betに対して（自分IP）：
+                            <ul>
+                                <li>上の UTG+1/2 オープンレンジ内は基本すべて defend</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            {% elif last_result.mode == 'power_number' %}
+                <div class="def-block">
+                    <strong>パワーナンバー（簡易版）</strong>
+                    <ul>
+                        <li>M値 = <span class="mono">スタック / (BB + BBアンティ + SB)</span></li>
+                        <li>M値が <span class="mono">6</span> を下回ったときだけ使用</li>
+                        <li><span class="mono">PN × 後ろにいるプレイヤー数 ≥ M値 × 後ろ人数</span> ならオールイン</li>
+                        <li>PNの割り当て（自分ルール）：
+                            <ul>
+                                <li>UTGオープンレンジ → PN = ∞（実装では 999）</li>
+                                <li>そこに含まれず、UTG+1/2レンジ（ただし A5s, A4s 除く） → PN = 50</li>
+                                <li>そこまでに含まれず、HJ/LJレンジ
+                                    <ul>
+                                        <li>ただし KXs で X ≤ 8 のとき PN = 9 + X</li>
+                                        <li>その他 HJ/LJレンジ → PN = 20</li>
+                                    </ul>
+                                </li>
+                                <li>そこまでに含まれず、COレンジ → PN = 10</li>
+                                <li>そこまでに含まれず、BTNレンジ + KXo + QXo → PN = 5</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            {% elif last_result.mode == 'bb_defence' %}
+                <div class="def-block">
+                    <strong>BB defence（CALLレンジ）</strong>
+                    <div style="margin-top:8px;">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Villain</th>
+                                <th>Offsuit</th>
+                                <th>Suited Axs</th>
+                                <th>Suited 両方≥X</th>
+                                <th>Suited コネ/ギャッパ</th>
+                                <th>ポケット</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>UTG</td>
+                                <td>AQo+</td>
+                                <td>ATs+</td>
+                                <td>両方≥11</td>
+                                <td>下≥7 & gap≤1</td>
+                                <td>66+</td>
+                            </tr>
+                            <tr>
+                                <td>UTG+1/2</td>
+                                <td>AJo+ + 両方≥12</td>
+                                <td>全部</td>
+                                <td>両方≥10</td>
+                                <td>下≥6 & gap≤1</td>
+                                <td>55+</td>
+                            </tr>
+                            <tr>
+                                <td>LJ/HJ</td>
+                                <td>ATo+ + 両方≥11</td>
+                                <td>全部</td>
+                                <td>両方≥8</td>
+                                <td>下≥4 & gap≤2</td>
+                                <td>22+</td>
+                            </tr>
+                            <tr>
+                                <td>CO/BTN</td>
+                                <td>A8o+ + 両方≥10</td>
+                                <td>全部</td>
+                                <td>両方≥7</td>
+                                <td>下≥4 & gap≤2</td>
+                                <td>22+</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% elif last_result.mode == 'sb_open' %}
+                <div class="def-block">
+                    <strong>SB first-in レンジ（全員フォールド前提）</strong>
+                    <ul>
+                        <li><strong>RAISE：</strong>BTNオープンレンジに入るハンド全部</li>
+                        <li><strong>LIMP：</strong>スーテッドで、BTNレンジに入らず、下が4以上のハンド
+                            <ul>
+                                <li>例：64s, 75s, 86s, 97s, T8s, J9s など</li>
+                                <li>A4s, K4s, Q4s なども含む（BTNレンジに入らないAxs, Kxs, Qxs で下≥4）</li>
+                            </ul>
+                        </li>
+                        <li><strong>FOLD：</strong>
+                            <ul>
+                                <li>オフスート全部（BTNレンジに入るものは除く）</li>
+                                <li>スーテッドで下が3以下（BTNレンジに入るものは除く）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div style="margin-top:6px;padding:8px;background:#111827;border-radius:8px;font-size:0.85rem;">
+                        <strong>補足：</strong>Limp pot後の対応（v2以降実装予定）<br />
+                        <span style="color:var(--text-sub);">
+                            ライブで直面した場合は「UTG+1/2 openレンジを参考にdefence」で暫定運用
+                        </span>
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleHands(bucketId) {
+    const handsDiv = document.getElementById(bucketId + '-hands');
+    const icon = document.getElementById(bucketId + '-icon');
+
+    if (handsDiv.style.display === 'none') {
+        handsDiv.style.display = 'block';
+        icon.textContent = '▼';
+    } else {
+        handsDiv.style.display = 'none';
+        icon.textContent = '▶';
+    }
+}
+
+// タイマー関連
+let timerInterval = null;
+let timeLeft = 10;
+
+function startTimer() {
+    const btn = document.getElementById('timer-btn');
+    const display = document.getElementById('timer-display');
+
+    // 既にタイマーが動いている場合はリセット
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+
+    // タイマー初期化
+    timeLeft = 10;
+    display.textContent = timeLeft;
+    btn.style.borderColor = 'var(--primary)';
+    btn.style.background = 'var(--bg)';
+
+    // カウントダウン開始
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        display.textContent = timeLeft;
+
+        // 残り3秒以下で色を変える
+        if (timeLeft <= 3) {
+            btn.style.borderColor = 'var(--danger)';
+            btn.style.background = 'rgba(239, 68, 68, 0.1)';
+        }
+
+        // タイマー終了
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            display.textContent = '✓';
+            btn.style.borderColor = 'var(--success)';
+            btn.style.background = 'rgba(34, 197, 94, 0.1)';
+
+            // 2秒後にリセット
+            setTimeout(() => {
+                timeLeft = 10;
+                display.textContent = '10';
+                btn.style.borderColor = 'var(--primary)';
+                btn.style.background = 'var(--bg)';
+            }, 2000);
+        }
+    }, 1000);
+}
+</script>
+</body>
+</html>
